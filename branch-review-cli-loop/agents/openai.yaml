@@ -1,0 +1,4 @@
+interface:
+  display_name: "Branch Review CLI Loop"
+  short_description: "Review branch diffs in fresh CLI sessions"
+  default_prompt: "Use $branch-review-cli-loop to review this branch diff, fix actionable findings, and repeat until clean."

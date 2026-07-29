@@ -1,0 +1,4 @@
+interface:
+  display_name: "X Article Chrome Publisher"
+  short_description: "Prepare X Article drafts through Chrome"
+  default_prompt: "Use $x-article-chrome-publisher to prepare a Markdown article as an X Article draft through Chrome."

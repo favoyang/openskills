@@ -1,0 +1,4 @@
+interface:
+  display_name: "Branch Review Subagent Loop"
+  short_description: "Review branch diffs with fresh no-history subagents"
+  default_prompt: "Use $branch-review-subagent-loop to independently review this branch until no actionable findings remain."

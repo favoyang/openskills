@@ -1,0 +1,4 @@
+interface:
+  display_name: "Loop Scheduler"
+  short_description: "Choose scheduled tasks or thread loops."
+  default_prompt: "Use $loop-scheduler to set up a recurring Codex check that reports only meaningful changes."

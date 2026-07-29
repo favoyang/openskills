@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+cd "$repo_root"
+
+bash -n branch-review-cli-loop/scripts/run-branch-review.sh
+python3 -m unittest discover -s x-article-chrome-publisher/tests -v
+python3 x-article-chrome-publisher/scripts/parse_markdown.py \
+  x-article-chrome-publisher/examples/article.md > /dev/null
+python3 x-article-chrome-publisher/scripts/parse_markdown.py \
+  x-article-chrome-publisher/examples/article.md --html-only > /dev/null
