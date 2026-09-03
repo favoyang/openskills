@@ -9,8 +9,6 @@ Public, Codex-specific agent skills maintained by
   sessions and repeats after fixes until clean.
 - `branch-review-subagent-loop` performs the same review loop with fresh,
   no-history Codex subagents.
-- `loop-scheduler` turns recurring Codex work into scheduled tasks or
-  current-task scheduled messages.
 - `personal-skill-maintenance` reviews recent Codex sessions and proposes
   evidence-backed skill improvements.
 - `x-article-chrome-publisher` prepares Markdown as reviewable X Article drafts
@@ -23,7 +21,8 @@ Clone this repository, then link only the skills you want into
 
 ```bash
 git clone https://github.com/favoyang/openskills.git
-ln -s /path/to/openskills/loop-scheduler ~/.codex/skills/loop-scheduler
+ln -s /path/to/openskills/personal-skill-maintenance \
+  ~/.codex/skills/personal-skill-maintenance
 ```
 
 These skills intentionally target Codex capabilities. They are not advertised
