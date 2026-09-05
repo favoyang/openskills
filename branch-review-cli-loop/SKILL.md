@@ -1,6 +1,6 @@
 ---
 name: branch-review-cli-loop
-description: Review the complete branch diff in fresh Codex CLI sessions, fix actionable findings, validate the fixes, and repeat until clean. Use before committing, pushing, creating, updating, approving, or merging a pull request; when repository instructions require an independent CLI review/fix loop; or when hosted review should not be the first review gate.
+description: "Run an independent full-branch Codex CLI review and fix loop when explicitly requested or required by repository policy. Use the subagent variant for a native subagent review gate."
 ---
 
 # Branch Review CLI Loop

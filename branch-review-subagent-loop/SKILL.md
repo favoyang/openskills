@@ -1,6 +1,6 @@
 ---
 name: branch-review-subagent-loop
-description: Review a complete Git branch and working-tree diff with a fresh no-history Codex subagent, fix verified findings in the parent task, and repeat until clean. Use before committing, pushing, creating or updating a pull request, or merging when an independent review gate is required without a nested Codex subprocess.
+description: "Review the complete Git branch and working-tree diff with fresh Codex subagents, fixing verified findings until clean. Use when requested or required as an independent review gate."
 ---
 
 # Branch Review Subagent Loop

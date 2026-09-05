@@ -45,8 +45,6 @@ Use this skill to review the last day of local Codex sessions and propose improv
 
 ## Constraints
 
-- Do not apply edits during the review pass.
-- Do not create new skills during the review pass.
 - Do not include secrets, private message contents, or long session excerpts in the proposal.
 - Use short paraphrases of evidence instead of quoting session logs.
 - Prefer small, surgical skill updates over broad rewrites.
