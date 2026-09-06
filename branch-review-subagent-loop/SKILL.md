@@ -15,7 +15,12 @@ Review independently; keep all repository changes in the parent task.
    file with `git add -N -- <exact-file-path>` so the reviewer can see it. Never
    pass a directory or broadly stage the worktree. Resolve any remaining
    untracked path before review.
-3. Start a new subagent with `fork_turns="none"` and no model override. If fresh
+3. Resolve the optional `reviewer` model/effort using the packaged
+   [role preferences](references/model-roles.md) instructions. Preserve explicit
+   user choices. Missing roles mean omit overrides and inherit parent settings;
+   invalid or unavailable configuration must be surfaced before review.
+   Start a new subagent with `fork_turns="none"` and the resolved, supported
+   overrides, if any. If fresh
    delegation is unavailable, stop; do not fall back to `/review`, `codex
    review`, `codex exec`, another `codex` command, or a review script.
 4. Give the reviewer the repository root, base branch, requested behavior, and
