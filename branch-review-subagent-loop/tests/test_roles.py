@@ -1,11 +1,14 @@
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 
-spec = importlib.util.spec_from_file_location('roles', Path(__file__).parents[1] / 'scripts' / 'resolve_roles.py')
+RESOLVER = Path(__file__).parents[1] / 'scripts' / 'resolve_roles.py'
+spec = importlib.util.spec_from_file_location('roles', RESOLVER)
 roles = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(roles)
 
@@ -15,10 +18,9 @@ class RolesTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.home = Path(self.temp.name) / 'home'
-        self.project = Path(self.temp.name) / 'project'
 
     def result(self, **kwargs):
-        return roles.resolve(self.project, self.home, **kwargs)['roles'][2]
+        return roles.resolve(self.home, **kwargs)['roles'][2]
 
     def profile(self, directory, model='test-review', effort='low', filename='reviewer.toml'):
         directory.mkdir(parents=True, exist_ok=True)
@@ -32,17 +34,24 @@ class RolesTest(unittest.TestCase):
         self.assertEqual(result['subagentOverrides'], {})
         self.assertEqual(result['fallback'], 'inherit parent settings')
 
-    def test_project_replaces_personal_and_explicit_model_does_not_mix_effort(self):
-        self.profile(self.home / 'agents')
-        project = self.profile(self.project / '.codex/agents', 'project-model', 'medium')
-        self.assertEqual(self.result()['taskOverrides'], {'model': 'project-model', 'thinking': 'medium'})
-        self.assertEqual(self.result()['source'], str(project.resolve()))
-        self.assertEqual(self.result(explicit_model='user-model')['taskOverrides'], {'model': 'user-model'})
-        self.assertEqual(self.result(explicit_effort='high')['subagentOverrides'], {'model': 'project-model', 'reasoning_effort': 'high'})
+    def test_project_option_is_rejected(self):
+        result = subprocess.run(
+            [sys.executable, str(RESOLVER), '--project', '/tmp/project', '--role', 'reviewer'],
+            capture_output=True,
+            text=True,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('unrecognized arguments: --project', result.stderr)
 
-    def test_invalid_project_does_not_silently_use_personal(self):
-        self.profile(self.home / 'agents')
-        file = self.profile(self.project / '.codex/agents')
+    def test_global_role_and_explicit_model_does_not_mix_effort(self):
+        global_profile = self.profile(self.home / 'agents')
+        self.assertEqual(self.result()['taskOverrides'], {'model': 'test-review', 'thinking': 'low'})
+        self.assertEqual(self.result()['source'], str(global_profile.resolve()))
+        self.assertEqual(self.result(explicit_model='user-model')['taskOverrides'], {'model': 'user-model'})
+        self.assertEqual(self.result(explicit_effort='high')['subagentOverrides'], {'model': 'test-review', 'reasoning_effort': 'high'})
+
+    def test_invalid_global_role_does_not_silently_fall_back(self):
+        file = self.profile(self.home / 'agents')
         file.write_text('model = [broken')
         result = self.result()
         self.assertEqual(result['status'], 'invalid')
@@ -61,7 +70,7 @@ class RolesTest(unittest.TestCase):
         for levels in (None, {}, 'bad', [None]):
             with self.subTest(levels=levels):
                 (self.home / 'models_cache.json').write_text(json.dumps({'models': [{'slug': 'test-review', 'supported_reasoning_levels': levels}]}))
-                result = roles.resolve(self.project, self.home)
+                result = roles.resolve(self.home)
                 self.assertEqual(result['roles'][2]['status'], 'configured')
                 self.assertIsNone(result['catalogSource'])
                 self.assertTrue(result['problems'])
