@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Read native Codex agent preferences without applying their instruction layers.
+"""Read global Codex agent preferences without applying instruction layers.
 
-Requires Python 3.11+. Standalone, standard library only. TaskChef packages an
-identical copy; neither installation imports the other at runtime.
+Requires Python 3.11+. Standalone, standard library only.
 """
 import argparse
 import json
@@ -57,11 +56,9 @@ def read_layer(directory):
     return found, problems
 
 
-def resolve(project=None, codex_home=None, explicit_model=None, explicit_effort=None):
+def resolve(codex_home=None, explicit_model=None, explicit_effort=None):
     home = Path(codex_home or os.environ.get('CODEX_HOME') or Path.home() / '.codex').expanduser().resolve()
     personal, problems = read_layer(home / 'agents')
-    local, local_problems = read_layer(Path(project).resolve() / '.codex' / 'agents') if project else ({}, [])
-    problems += local_problems
     catalog = None
     catalog_source = str(home / 'models_cache.json')
     try:
@@ -81,7 +78,7 @@ def resolve(project=None, codex_home=None, explicit_model=None, explicit_effort=
         problems.append('Local Codex model catalog is unreadable or malformed; validate availability with the current native tool.')
     results = []
     for role in ROLES:
-        entry = local.get(role, personal.get(role))
+        entry = personal.get(role)
         source = entry['source'] if entry else None
         model = entry['model'] if entry else None
         effort = entry['effort'] if entry else None
@@ -123,7 +120,7 @@ def resolve(project=None, codex_home=None, explicit_model=None, explicit_effort=
                         'subagentOverrides': {('reasoning_effort' if k == 'thinking' else k): v for k, v in overrides.items()},
                         'fallback': 'inherit parent settings' if role == 'reviewer' else 'native new-task default (not guaranteed dispatcher inheritance)'})
     return {'roles': results, 'problems': problems, 'catalogSource': catalog_source if catalog is not None else None,
-            'precedence': 'explicit user model (and its explicit effort) > project role > personal role > native defaults; explicit effort alone overrides role effort',
+            'precedence': 'explicit user model (and its explicit effort) > global role > native defaults; explicit effort alone overrides role effort',
             'scope': 'Model and effort only; agent instructions, tools, permissions, and other TOML keys are not applied by this adapter.'}
 
 
@@ -150,7 +147,6 @@ def setup(role, model, effort, codex_home=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--project')
     parser.add_argument('--codex-home')
     parser.add_argument('--role', choices=ROLES)
     parser.add_argument('--model')
@@ -162,7 +158,7 @@ def main():
             parser.error('--setup requires --role, --model, and --effort')
         result = setup(args.role, args.model, args.effort, args.codex_home)
     else:
-        result = resolve(args.project, args.codex_home, args.model, args.effort)
+        result = resolve(args.codex_home, args.model, args.effort)
         if args.role:
             result['roles'] = [r for r in result['roles'] if r['role'] == args.role]
     print(json.dumps(result, indent=2))
