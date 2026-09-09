@@ -5,7 +5,9 @@ description: "Review the complete Git branch and working-tree diff with fresh Co
 
 # Branch Review Subagent Loop
 
-Review independently; keep all repository changes in the parent task.
+Review independently. The invoking task owns the review gate and, by default,
+keeps all repository changes in that task. An orchestration workflow may use
+the delegated-fix contract below without transferring review ownership.
 
 ## Workflow
 
@@ -40,11 +42,28 @@ impact, and remediation. Return CLEAN if none exist. State what you inspected
 and any coverage limits.
 ```
 
-5. Verify each finding. Fix valid findings and run validation in the parent
-   task.
+5. Verify each finding. By default, fix valid findings and run validation in
+   the invoking task. An invoking orchestrator may instead assign verified
+   fixes to a fresh implementer only when all of these conditions hold:
+   - the reviewer has ended and remains read-only;
+   - the implementer receives the bounded findings, exact repository/worktree,
+     owned paths, and required validation;
+   - the implementer has exclusive write ownership and is told not to revert
+     unrelated changes;
+   - the orchestrator establishes that the implementer has ended before it
+     accepts the patch or starts another reviewer; and
+   - the orchestrator verifies the resulting diff and validation evidence.
+
+   A timeout or uncertain spawn response is not evidence that a writer stopped.
+   If exclusive ownership cannot be established, stop the review loop. This
+   conditional path does not let the reviewer edit, reuse the reviewer as an
+   implementer, or make TaskChef (or any other orchestrator) a dependency of
+   standalone review.
 6. Start another fresh no-history reviewer with the same neutral prompt. Repeat
    until it returns `CLEAN` with complete coverage.
 
 Do not seed reviewers with expected findings, prior feedback, or fixes. Treat
 missing coverage or ambiguous output as a failed pass. Use hosted review only
-as an additional signal.
+as an additional signal. An orchestrator may record each pass and opaque agent
+handle in its own telemetry, but the skill's fresh neutral reviewer and CLEAN
+result remain authoritative.
