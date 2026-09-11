@@ -7,8 +7,8 @@ Public, Codex-specific agent skills maintained by
 
 - `branch-review-cli-loop` reviews complete branch diffs in fresh Codex CLI
   sessions and repeats after fixes until clean.
-- `branch-review-subagent-loop` performs the same review loop with fresh,
-  no-history Codex subagents.
+- `branch-review-subagent-loop` reviews a complete diff with one fresh,
+  no-history Codex subagent and returns findings or `CLEAN` without editing.
 - `personal-skill-maintenance` reviews recent Codex sessions and proposes
   evidence-backed skill improvements.
 - `x-article-chrome-publisher` prepares Markdown as reviewable X Article drafts
