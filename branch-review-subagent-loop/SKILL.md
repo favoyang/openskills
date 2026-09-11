@@ -6,8 +6,8 @@ description: "Review the complete Git branch and working-tree diff with a fresh 
 # Branch Review Subagent Loop
 
 Review independently without modifying the repository. Each invocation uses a
-fresh reviewer and returns findings or `CLEAN`; the invoking task decides what
-to do with that result.
+fresh reviewer and returns findings or `CLEAN`. The invoking task owns finding
+verification, fixes, validation, and any later review invocation.
 
 ## Workflow
 
